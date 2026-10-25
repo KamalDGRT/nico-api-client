@@ -1,0 +1,19 @@
+{
+  "name": "@nico/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Typed fetch client base class, API error handling and refresh-token storage shared by the nico web apps.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12"
+  }
+}
