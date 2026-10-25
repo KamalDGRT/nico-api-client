@@ -44,4 +44,4 @@ Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`). Subject o
 1. Update `version` in `package.json` (semver, see README).
 2. Commit, then `git tag vX.Y.Z`.
 3. `npm publish --access public` (`prepublishOnly` runs typecheck, tests and build first).
-4. `git push --follow-tags`.
+4. `git push origin main vX.Y.Z` (`--follow-tags` skips lightweight tags).
