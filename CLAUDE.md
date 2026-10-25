@@ -45,3 +45,7 @@ Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`). Subject o
 2. Commit, then `git tag vX.Y.Z`.
 3. `npm publish --access public` (`prepublishOnly` runs typecheck, tests and build first).
 4. `git push origin main vX.Y.Z` (`--follow-tags` skips lightweight tags).
+5. Wait until the new version is installable. The registry's version endpoint (`https://registry.npmjs.org/<package>/<version>`) answers first. `npm view <package> version --prefer-online` and `npm install` can lag by a few minutes.
+6. Update each consuming app: `npm i <package>@latest`, then its typecheck, tests, lint and build, then commit and push. While the major version is `0`, `^0.x.0` ranges do not cross a minor, so every minor release needs this explicit bump.
+
+Staged publishes show as "Cannot publish over previously staged version" on retry. Do not republish; confirm approval on npm instead.
