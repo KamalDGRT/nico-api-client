@@ -42,14 +42,14 @@ describe("parseJsonOrThrow", () => {
 
   it("exposes every server message in messages, one per error", async () => {
     const res = json({ errors: [{ detail: "title: too long" }, { detail: "slug: bad" }] }, STATUS_UNPROCESSABLE);
-    const error: ApiError = await parseJsonOrThrow(res).catch((e) => e);
+    const error = (await parseJsonOrThrow(res).catch((e) => e)) as ApiError;
     expect(error).toBeInstanceOf(ApiError);
     expect(error.messages).toEqual(["title: too long", "slug: bad"]);
     expect(error.message).toBe("title: too long slug: bad");
   });
 
   it("messages holds the generic fallback when the body has no details", async () => {
-    const error: ApiError = await parseJsonOrThrow(json({ errors: [] }, 400)).catch((e) => e);
+    const error = (await parseJsonOrThrow(json({ errors: [] }, 400)).catch((e) => e)) as ApiError;
     expect(error.messages).toEqual(["Request failed"]);
   });
 
