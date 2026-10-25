@@ -2,7 +2,7 @@
 
 ## What this is
 
-`@nico/api-client`: a small TypeScript package, published to npm as compiled ESM + `.d.ts` with an `ApiClient` base class, API error handling and refresh-token storage. See [README.md](README.md) for the public API and usage.
+`@kamaldgrt/api-client`: a small TypeScript package, published to npm as compiled ESM + `.d.ts` with an `ApiClient` base class, API error handling and refresh-token storage. See [README.md](README.md) for the public API and usage.
 
 ## Layout
 

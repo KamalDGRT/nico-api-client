@@ -1,5 +1,5 @@
 {
-  "name": "@nico/api-client",
+  "name": "@kamaldgrt/api-client",
   "version": "0.1.0",
   "description": "Typed fetch client base class, API error handling and refresh-token storage shared by the nico web apps.",
   "type": "module",

@@ -1,4 +1,4 @@
-# @nico/api-client
+# @kamaldgrt/api-client
 
 Framework-agnostic TypeScript building blocks for talking to a JSON REST API from a browser app:
 
@@ -12,7 +12,7 @@ Ships compiled ESM with type declarations and has no runtime dependencies.
 ## Install
 
 ```bash
-npm i @nico/api-client
+npm i @kamaldgrt/api-client
 ```
 
 No bundler configuration is needed: the package is plain compiled JavaScript with bundled types.
@@ -24,7 +24,7 @@ No bundler configuration is needed: the package is plain compiled JavaScript wit
 Subclass `ApiClient` and expose one typed method per endpoint.
 
 ```ts
-import { ApiClient } from "@nico/api-client";
+import { ApiClient } from "@kamaldgrt/api-client";
 
 export class HouseService extends ApiClient {
   list(): Promise<House[]> {
