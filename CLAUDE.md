@@ -2,13 +2,14 @@
 
 ## What this is
 
-`@nico/api-client`: a small, source-only TypeScript package with an `ApiClient` base class, API error handling and refresh-token storage. See [README.md](README.md) for the public API and usage.
+`@nico/api-client`: a small TypeScript package, published to npm as compiled ESM + `.d.ts` with an `ApiClient` base class, API error handling and refresh-token storage. See [README.md](README.md) for the public API and usage.
 
 ## Layout
 
 - `src/ApiClient.ts`: `ApiClient`, `ApiError`, `Fetcher`, `createPublicFetcher`, `errorMessage`, `parseJsonOrThrow`, `parseTextOrThrow`
 - `src/tokenStorage.ts`: `createRefreshTokenStorage(key)`
 - `src/constants.ts`: named constants (status codes, content type, default error message)
+- `dist/`: build output (gitignored, published)
 - `src/index.ts`: the only public entry point; everything exported there is public API
 - `tests/`: vitest suites, one per source module
 
@@ -17,6 +18,7 @@
 ```bash
 npm test            # vitest run (jsdom)
 npm run typecheck   # tsc --noEmit
+npm run build       # tsup -> dist/
 ```
 
 Run both before every commit.
@@ -26,7 +28,7 @@ Run both before every commit.
 - **Generic only.** This package must stay application-agnostic: no app names, domain types, endpoints, storage keys or environment variables. Anything app-specific is passed in by the caller (`Fetcher`, storage `key`).
 - **No runtime dependencies.** Browser and platform APIs only (`fetch`, `Response`, `localStorage`). Dev dependencies are limited to TypeScript, vitest and jsdom.
 - **No UI, no framework imports.** No React, no Next. This is plain TypeScript.
-- **Source-only.** Do not add a build step. `package.json` `exports` points at `src/index.ts`.
+- **Published output is `dist/`.** `exports` points at `dist/`, `files` is `["dist"]`. Tests import from `src`, never from `dist`.
 - **Public API is a contract.** Do not rename or change the signature of an exported symbol without a major version bump. Add new capabilities as optional parameters or new exports.
 - **No magic values.** Put status codes, header values and default messages in `src/constants.ts`.
 - **Specific errors.** Failed responses throw `ApiError` with the HTTP status. Do not swallow errors, and do not throw bare `Error`.
@@ -39,6 +41,7 @@ Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`). Subject o
 
 ## Releasing
 
-1. Update `version` in `package.json`.
-2. Commit, then tag `vX.Y.Z`.
-3. Push the commit and the tag.
+1. Update `version` in `package.json` (semver, see README).
+2. Commit, then `git tag vX.Y.Z`.
+3. `npm publish --access public` (`prepublishOnly` runs typecheck, tests and build first).
+4. `git push --follow-tags`.

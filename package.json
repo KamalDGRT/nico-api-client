@@ -1,19 +1,34 @@
 {
   "name": "@nico/api-client",
   "version": "0.1.0",
-  "private": true,
   "description": "Typed fetch client base class, API error handling and refresh-token storage shared by the nico web apps.",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
   "scripts": {
+    "build": "tsup",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
     "jsdom": "^29.1.1",
+    "tsup": "^9.0.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.12"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KamalDGRT/nico-api-client.git"
   }
 }

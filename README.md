@@ -7,21 +7,15 @@ Framework-agnostic TypeScript building blocks for talking to a JSON REST API fro
 - **`createPublicFetcher`**: a `Fetcher` for APIs that need no authentication.
 - **`createRefreshTokenStorage`**: `localStorage` persistence for a refresh token that never throws.
 
-The package is source-only TypeScript: there is no build step and no runtime dependency.
+Ships compiled ESM with type declarations and has no runtime dependencies.
 
 ## Install
 
 ```bash
-npm i github:KamalDGRT/nico-api-client      # pinned to a tag: github:KamalDGRT/nico-api-client#v0.1.0
-npm i ../nico-api-client                    # local development
+npm i @nico/api-client
 ```
 
-The consuming app has to compile the package itself. In Next.js:
-
-```ts
-// next.config.ts
-const nextConfig: NextConfig = { transpilePackages: ["@nico/api-client"] };
-```
+No bundler configuration is needed: the package is plain compiled JavaScript with bundled types.
 
 ## Usage
 
@@ -91,6 +85,7 @@ Only the refresh token should be persisted. Keep the short-lived access token in
 npm install
 npm test            # vitest (jsdom)
 npm run typecheck   # tsc --noEmit
+npm run build       # tsup -> dist/ (ESM + .d.ts)
 ```
 
 ## API changes
@@ -99,4 +94,4 @@ Every consumer imports from the package root (`src/index.ts`). Treat exported na
 
 - Additive changes bump the minor version.
 - Breaking changes bump the major version.
-- Tag each release (`vX.Y.Z`) so consumers can pin to it.
+- Tag each release (`vX.Y.Z`) to match the published version.
