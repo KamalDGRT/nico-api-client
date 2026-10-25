@@ -40,6 +40,19 @@ describe("parseJsonOrThrow", () => {
     await expect(parseJsonOrThrow(res)).rejects.toThrow("a b");
   });
 
+  it("exposes every server message in messages, one per error", async () => {
+    const res = json({ errors: [{ detail: "title: too long" }, { detail: "slug: bad" }] }, STATUS_UNPROCESSABLE);
+    const error: ApiError = await parseJsonOrThrow(res).catch((e) => e);
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error.messages).toEqual(["title: too long", "slug: bad"]);
+    expect(error.message).toBe("title: too long slug: bad");
+  });
+
+  it("messages holds the generic fallback when the body has no details", async () => {
+    const error: ApiError = await parseJsonOrThrow(json({ errors: [] }, 400)).catch((e) => e);
+    expect(error.messages).toEqual(["Request failed"]);
+  });
+
   it("uses a plain string body as the message", async () => {
     await expect(parseJsonOrThrow(json("plain failure", 400))).rejects.toThrow(
       "plain failure",
@@ -110,6 +123,12 @@ describe("ApiClient verbs", () => {
     putIt() {
       return this.put(PATH, { a: 2 });
     }
+    patchIt() {
+      return this.patch(PATH, { a: 3 });
+    }
+    postRawIt(body: FormData | URLSearchParams) {
+      return this.post(PATH, body);
+    }
     deleteIt() {
       return this.delete(PATH);
     }
@@ -134,6 +153,29 @@ describe("ApiClient verbs", () => {
       [PATH, { method: "POST", headers: { "Content-Type": "application/json" }, body: '{"a":1}' }],
       [PATH, { method: "PUT", headers: { "Content-Type": "application/json" }, body: '{"a":2}' }],
     ]);
+  });
+
+  it("PATCH sends a JSON body", async () => {
+    const { fetcher, probe } = probeWith(() => json({}));
+    await probe.patchIt();
+    expect(fetcher).toHaveBeenCalledWith(PATH, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: '{"a":3}',
+    });
+  });
+
+  it("sends URLSearchParams and FormData untouched with no Content-Type", async () => {
+    const { fetcher, probe } = probeWith(() => json({}));
+    const form = new URLSearchParams({ username: "a@b.co" });
+    const upload = new FormData();
+    upload.append("file", new Blob(["x"]), "x.png");
+    await probe.postRawIt(form);
+    await probe.postRawIt(upload);
+    expect(fetcher.mock.calls[0][1]).toEqual({ method: "POST", headers: {}, body: form });
+    expect(fetcher.mock.calls[0][1].body).toBe(form);
+    expect(fetcher.mock.calls[1][1].headers).toEqual({});
+    expect(fetcher.mock.calls[1][1].body).toBe(upload);
   });
 
   it("DELETE without a body sends neither body nor content type", async () => {

@@ -2,8 +2,8 @@
 
 Framework-agnostic TypeScript building blocks for talking to a JSON REST API from a browser app:
 
-- **`ApiClient`**: base class for per-domain services, with typed `get`, `getText`, `post`, `put` and `delete` helpers.
-- **Error handling**: `ApiError`, `errorMessage`, `parseJsonOrThrow` and `parseTextOrThrow` turn non-2xx responses into a single `ApiError` carrying the server's message and HTTP status.
+- **`ApiClient`**: base class for per-domain services, with typed `get`, `getText`, `post`, `put`, `patch` and `delete` helpers. `URLSearchParams` and `FormData` bodies (login forms, file uploads) are sent as-is instead of as JSON.
+- **Error handling**: `ApiError`, `errorMessage`, `parseJsonOrThrow` and `parseTextOrThrow` turn non-2xx responses into a single `ApiError` carrying the server's message, every individual message (`messages`) and the HTTP status.
 - **`createPublicFetcher`**: a `Fetcher` for APIs that need no authentication.
 - **`createRefreshTokenStorage`**: `localStorage` persistence for a refresh token that never throws.
 

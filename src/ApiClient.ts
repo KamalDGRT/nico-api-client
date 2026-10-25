@@ -6,9 +6,12 @@ import {
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  // One entry per error the server reported; `message` is these joined.
+  messages: string[];
+  constructor(message: string, status: number, messages: string[] = [message]) {
     super(message);
     this.status = status;
+    this.messages = messages;
   }
 }
 
@@ -24,16 +27,15 @@ export function createPublicFetcher(baseUrl: string): Fetcher {
 }
 
 // Every error response is {"errors": [{"detail", ...}, ...]} — several items
-// when a call reports more than one problem at once. Join them into one
-// message rather than showing only the first.
-function extractErrorMessage(body: unknown): string | undefined {
-  if (typeof body === "string") return body;
+// when a call reports more than one problem at once. A plain string body is
+// taken as the message. Empty when the body has neither.
+function extractErrorMessages(body: unknown): string[] {
+  if (typeof body === "string") return [body];
   const errors = (body as { errors?: { detail?: unknown }[] })?.errors;
-  if (!Array.isArray(errors) || errors.length === 0) return undefined;
-  const messages = errors
-    .map((e) => (typeof e?.detail === "string" ? e.detail : undefined))
-    .filter((m): m is string => Boolean(m));
-  return messages.length > 0 ? messages.join(" ") : undefined;
+  if (!Array.isArray(errors)) return [];
+  return errors
+    .map((e) => e?.detail)
+    .filter((detail): detail is string => typeof detail === "string");
 }
 
 // The server's message for an ApiError (already human-readable), else the
@@ -44,10 +46,9 @@ export function errorMessage(err: unknown, fallback: string): string {
 
 async function throwApiError(res: Response): Promise<never> {
   const body = await res.json().catch(() => null);
-  throw new ApiError(
-    extractErrorMessage(body) ?? DEFAULT_ERROR_MESSAGE,
-    res.status,
-  );
+  const extracted = extractErrorMessages(body);
+  const messages = extracted.length > 0 ? extracted : [DEFAULT_ERROR_MESSAGE];
+  throw new ApiError(messages.join(" "), res.status, messages);
 }
 
 export async function parseJsonOrThrow<T>(res: Response): Promise<T> {
@@ -60,6 +61,10 @@ export async function parseJsonOrThrow<T>(res: Response): Promise<T> {
 // raw text (e.g. a full HTML document meant for `iframe.srcDoc`).
 export async function parseTextOrThrow(res: Response): Promise<string> {
   return res.ok ? res.text() : throwApiError(res);
+}
+
+function isRawBody(body: unknown): body is FormData | URLSearchParams {
+  return body instanceof FormData || body instanceof URLSearchParams;
 }
 
 /**
@@ -102,6 +107,14 @@ export class ApiClient {
     return this.request<T>("PUT", path, body, headers);
   }
 
+  protected patch<T>(
+    path: string,
+    body: unknown,
+    headers?: Record<string, string>,
+  ): Promise<T> {
+    return this.request<T>("PATCH", path, body, headers);
+  }
+
   protected delete<T = void>(
     path: string,
     body?: unknown,
@@ -117,13 +130,16 @@ export class ApiClient {
     headers?: Record<string, string>,
   ): Promise<T> {
     const hasBody = body !== undefined;
+    // Forms and uploads go out as-is; the browser sets their Content-Type
+    // (including the multipart boundary).
+    const isRaw = isRawBody(body);
     return this.fetcher(path, {
       method,
       headers: {
-        ...(hasBody && { "Content-Type": CONTENT_TYPE_JSON }),
+        ...(hasBody && !isRaw && { "Content-Type": CONTENT_TYPE_JSON }),
         ...headers,
       },
-      ...(hasBody && { body: JSON.stringify(body) }),
+      ...(hasBody && { body: isRaw ? body : JSON.stringify(body) }),
     }).then((res) => parseJsonOrThrow<T>(res));
   }
 }
