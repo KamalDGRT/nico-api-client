@@ -37,7 +37,21 @@ Run both before every commit.
 
 ## Commits
 
-Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`). Subject only, unless the reason is not obvious. No co-author trailers.
+Terse commit messages: subject line only, no body unless asked. Lowercase conventional prefix, imperative verb. No `Co-Authored-By` trailer.
+
+| Prefix | Use when |
+|---|---|
+| `feat:` | New user-visible behaviour, endpoint, column, UI element or label change |
+| `fix:` | Bug fix |
+| `refactor:` | Restructure code, same behaviour |
+| `perf:` | Performance improvement, same behaviour |
+| `test:` | Add/change tests only |
+| `docs:` | Docs only (CLAUDE.md, README) |
+| `style:` | Formatting only, no logic change |
+| `build:` | Build system or CI/deploy config |
+| `deps:` | Add/bump/lock a dependency |
+| `chore:` | Maintenance that fits nowhere else (seed data sync, tooling) |
+| `bump:` | Semver bump commit, e.g. `bump: 1.2.0` |
 
 ## Releasing
 
